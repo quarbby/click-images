@@ -33,7 +33,7 @@ def create_app():
     def insert_into_db(conn, json_data):
         try:
             cursor = conn.cursor()
-            sqlite_insert_query = """INSERT INTO labels 
+            sqlite_insert_query = """INSERT INTO multimodallabels 
                         ('N1', 'N2', 'N3', 'R1', 'R2', 'R3', 'C1', 'C2', 'C3', 
                             'caption', 'firstimg',
                             'secondimg', 'xlxmert', 'attngan', 'date') 
@@ -49,6 +49,8 @@ def create_app():
                 json_data['secondimg'], json_data['xlxmertimg'], json_data['attnganimg'], date_string
             )
 
+            print(data_tuple)
+
             cursor.execute(sqlite_insert_query, data_tuple)
             print(cursor.rowcount, "Record inserted successfully into table")
             conn.commit() 
@@ -63,11 +65,11 @@ def create_app():
             return base64_encoded_data.decode('utf-8')
 
     data_dir = './data/multimodal/'
-    data_label_file = './data/multimodallabels.json'
     db_file = 'labels_multimodal.db'
 
-    with open(data_label_file, 'r', encoding='utf-8') as f:
-        data_labels = json.loads(f.read())
+    # data_label_file = './data/multimodallabels.json'
+    # with open(data_label_file, 'r', encoding='utf-8') as f:
+    #     data_labels = json.loads(f.read())
 
     conn = create_connection(db_file)
     create_table(db_file, conn)
@@ -99,6 +101,10 @@ def create_app():
 
     @app.route('/get_data', methods=['POST'])
     def get_data():
+        data_label_file = './data/multimodallabels.json'
+        with open(data_label_file, 'r', encoding='utf-8') as f:
+            data_labels = json.loads(f.read())
+
         response = jsonify({'data': data_labels})
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response

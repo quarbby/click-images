@@ -1,6 +1,7 @@
-import React, { useEffect, useState, Component } from 'react';
+import React, { Component } from 'react';
 import axios from 'axios';
-import { Button, Grid, Table, TableRow, TableBody, TableCell, Select, Tab } from '@material-ui/core';
+import { Button, Grid, Table, TableRow, TableBody, TableCell, Select } from '@material-ui/core';
+import Alert from '@material-ui/lab/Alert';
 
 
 class GalleryAnnotation extends Component {
@@ -18,7 +19,8 @@ class GalleryAnnotation extends Component {
         xlxmertimg: 'orange.jpg',
         attnganimg: 'orange.jpg',
         secondimg: 'orange.jpg',
-        fulldata: []
+        fulldata: [],
+        firstTime: true
     }
 
     renderPage() {
@@ -35,7 +37,6 @@ class GalleryAnnotation extends Component {
         this.state.attnganimg = this.state.fulldata[this.state.index]['attnganimg']
         this.state.secondimg = this.state.fulldata[this.state.index]['secondimg']
 
-        console.log(this.state)
         this.renderPage();
     }
 
@@ -51,26 +52,40 @@ class GalleryAnnotation extends Component {
         this.state.CState[parseInt(event.target.name)] = event.target.value;
     };
 
-    buttonClickHandler = () => {
-        let dataToSend = this.state;
-        delete dataToSend['fulldata'];
-        delete dataToSend['index']
-        console.log(dataToSend)
-        axios.post('http://localhost:5000/send_data', dataToSend).then(res => {
-            console.log(res.data);
-            this.state.index += 1;
+    async buttonClickHandler() {
+        let dataToSend = {};
+        dataToSend['NState'] = this.state.NState;
+        dataToSend['RState'] = this.state.RState;
+        dataToSend['CState'] = this.state.CState;
+        dataToSend['caption'] = this.state.caption;
+        dataToSend['firstimg'] = this.state.firstimg;
+        dataToSend['xlxmertimg'] = this.state.xlxmertimg;
+        dataToSend['attnganimg'] = this.state.attnganimg;
+        dataToSend['secondimg'] = this.state.secondimg;
 
+        const response = await axios.post('http://localhost:5000/send_data', dataToSend)
+        this.state.index = this.state.index + 1;
+
+        if (this.state.index == this.state.fulldata.length) {
+            alert('That\'s all there is! Thank you for helping!')
+        }
+        else {
             this.state.caption = this.state.fulldata[this.state.index]['caption']
             this.state.firstimg = this.state.fulldata[this.state.index]['firstimg']
             this.state.xlxmertimg = this.state.fulldata[this.state.index]['xlxmertimg']
             this.state.attnganimg = this.state.fulldata[this.state.index]['attnganimg']
             this.state.secondimg = this.state.fulldata[this.state.index]['secondimg']
-        });
+
+            this.renderPage();
+        }
+
     }
 
     render(){
         return (
             <div>
+                {/* <Alert name='alert' display='none'></Alert> */}
+
                 <Grid item xs={12} container justify='center'>
                     <b>Evaluation Task: </b> <br></br>
                     Please rate each image from 1 to 3 on the metric provided, where 3 is the best and 1 is worst.
