@@ -1,11 +1,11 @@
 import React from 'react';
 import './App.css';
-import GalleryFunc from './GalleryFunc';
+import GalleryAnnotation from './GalleryAnnotation';
 
 function App() {
   return (
     <div>
-      <GalleryFunc />
+      <GalleryAnnotation />
     </div>
   );
 }

@@ -24,26 +24,27 @@ const GalleryFunc = () => {
     }, []);
 
     function buttonClickHandler(name) {
-        axios.post(`http://localhost:5000/grab_data`, {
-            'filename': imgDir[imgIndex],
-            'label': name
-        }).then()
-        let nextVal = (imgIndex + 1) % imgList.length
-        setImgIndex(nextVal)
-        console.log(imgDir[imgIndex])
-        console.log(name)
+        console.log(CStates)
+        // axios.post(`http://localhost:5000/grab_data`, {
+        //     'filename': imgDir[imgIndex],
+        //     'label': name
+        // }).then()
+        // let nextVal = (imgIndex + 1) % imgList.length
+        // setImgIndex(nextVal)
+        // console.log(imgDir[imgIndex])
+        // console.log(name)
     }
 
     const handleN1Change = (event) => {
-        setNStates[event.target.name] = event.target.value;
+        setNStates[parseInt(event.target.name)] = event.target.value;
     };
 
     const handleR1Change = (event) => {
-        setRStates[event.target.name] = event.target.value;
+        setRStates[parseInt(event.target.name)] = event.target.value;
     };
 
     const handleC1Change = (event) => {
-        setCStates[event.target.name] = event.target.value;
+        setCStates[parseInt(event.target.name)] = event.target.value;
     };
 
     return (
@@ -87,19 +88,19 @@ const GalleryFunc = () => {
                             <TableRow>
                                 <TableCell><b>Naturalness: </b>How natural is the image?</TableCell>
                                 <TableCell> 
-                                    <Select native value={1} onChange={handleN1Change} name={1}>
+                                    <Select native value={1} onChange={handleN1Change} name={'1'}>
                                         <option value={1}>1</option>
                                         <option value={2}>2</option>
                                         <option value={3}>3</option></Select>
                                 </TableCell>
                                 <TableCell> 
-                                    <Select native value={2} onChange={handleN1Change} name={2}>
+                                    <Select native value={2} onChange={handleN1Change} name={'2'}>
                                         <option value={1}>1</option>
                                         <option value={2}>2</option>
                                         <option value={3}>3</option></Select>
                                 </TableCell>
                                 <TableCell> 
-                                    <Select native value={3} onChange={handleN1Change} name={3}>
+                                    <Select native value={3} onChange={handleN1Change} name={'3'}>
                                         <option value={1}>1</option>
                                         <option value={2}>2</option>
                                         <option value={3}>3</option></Select>
@@ -108,19 +109,19 @@ const GalleryFunc = () => {
                             <TableRow>
                                 <TableCell><b>Relevance: </b>How relevant is the image?</TableCell>
                                 <TableCell> 
-                                    <Select native value={1} onChange={handleR1Change} name={1}>
+                                    <Select native value={1} onChange={handleR1Change} name={'1'}>
                                         <option value={1}>1</option>
                                         <option value={2}>2</option>
                                         <option value={3}>3</option></Select>
                                 </TableCell>
                                 <TableCell> 
-                                    <Select native value={2} onChange={handleR1Change} name={2}>
+                                    <Select native value={2} onChange={handleR1Change} name={'2'}>
                                         <option value={1}>1</option>
                                         <option value={2}>2</option>
                                         <option value={3}>3</option></Select>
                                 </TableCell>
                                 <TableCell> 
-                                    <Select native value={3} onChange={handleR1Change} name={3}>
+                                    <Select native value={3} onChange={handleR1Change} name={'3'}>
                                         <option value={1}>1</option>
                                         <option value={2}>2</option>
                                         <option value={3}>3</option></Select>
@@ -129,19 +130,19 @@ const GalleryFunc = () => {
                             <TableRow>
                                 <TableCell><b>Relevance: </b>How correct is the image?</TableCell>
                                 <TableCell> 
-                                    <Select native value={1} onChange={handleC1Change} name={1}>
+                                    <Select native value={1} onChange={handleC1Change} name={'1'}>
                                         <option value={1}>1</option>
                                         <option value={2}>2</option>
                                         <option value={3}>3</option></Select>
                                 </TableCell>
                                 <TableCell> 
-                                    <Select native value={3} onChange={handleC1Change} name={2}>
+                                    <Select native value={2} onChange={handleC1Change} name={'2'}>
                                         <option value={1}>1</option>
                                         <option value={2}>2</option>
                                         <option value={3}>3</option></Select>
                                 </TableCell>
                                 <TableCell> 
-                                    <Select native value={3} onChange={handleC1Change} name={3}>
+                                    <Select native value={3} onChange={handleC1Change} name={'3'}>
                                         <option value={1}>1</option>
                                         <option value={2}>2</option>
                                         <option value={3}>3</option></Select>

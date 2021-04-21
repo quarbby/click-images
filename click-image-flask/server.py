@@ -24,21 +24,31 @@ def create_app():
 
     def create_table(db_file, conn):
         c = conn.cursor()
-        c.execute('''CREATE TABLE IF NOT EXISTS labels 
-                (filename, label, filetype, date)    
+        c.execute('''CREATE TABLE IF NOT EXISTS multimodallabels 
+                (N1, N2, N3, R1, R2, R3, C1, C2, C3, caption, firstimg,
+                secondimg, xlxmert, attngan, date)    
                 ''')
         conn.commit()
 
-    def insert_into_db(conn, file_name, file_type, label):
+    def insert_into_db(conn, json_data):
         try:
             cursor = conn.cursor()
             sqlite_insert_query = """INSERT INTO labels 
-                        ('filename', 'label', 'filetype', 'date') 
-                        VALUES (?, ?, ?, ?);"""
+                        ('N1', 'N2', 'N3', 'R1', 'R2', 'R3', 'C1', 'C2', 'C3', 
+                            'caption', 'firstimg',
+                            'secondimg', 'xlxmert', 'attngan', 'date') 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );"""
 
             date_string = datetime.now().strftime("%m-%d-%YT%H:%M:%S")
 
-            data_tuple = (file_name, label, file_type, date_string)
+            # data_tuple = (file_name, label, file_type, date_string)
+            data_tuple = ( json_data['NState'][0], json_data['NState'][1], json_data['NState'][2],
+                json_data['RState'][0], json_data['RState'][1], json_data['RState'][2],
+                json_data['CState'][0], json_data['CState'][1], json_data['CState'][2],
+                json_data['caption'], json_data['firstimg'],
+                json_data['secondimg'], json_data['xlxmertimg'], json_data['attnganimg'], date_string
+            )
+
             cursor.execute(sqlite_insert_query, data_tuple)
             print(cursor.rowcount, "Record inserted successfully into table")
             conn.commit() 
@@ -52,57 +62,50 @@ def create_app():
             base64_encoded_data = base64.b64encode(binary_file_data)
             return base64_encoded_data.decode('utf-8')
 
-    def text_file_to_str(file):
-        with open (file, "r") as myfile:
-            return myfile.read()
+    data_dir = './data/multimodal/'
+    data_label_file = './data/multimodallabels.json'
+    db_file = 'labels_multimodal.db'
 
-    image_dir = 'data/images/'
-    text_dir = './data/text/'
-    image_label_file = './data/image_labels.json'
-    text_label_file = './data/text_labels.json'
-    db_file = 'labels.db'
-    
-    image_files = [os.path.join(image_dir, fn) for fn in os.listdir(image_dir)]
-    text_files = [os.path.join(text_dir, fn) for fn in os.listdir(text_dir)]
-
-    img_str_arr = []
-    text_str_arr = []
-    for i in image_files:
-        img_str_arr.append(img_to_str(i))
-    for i in text_files:
-        text_str_arr.append(text_file_to_str(i))
-
-    with open(image_label_file, 'r', encoding='utf-8') as f:
-        image_labels = json.loads(f.read())
-    with open(text_label_file, 'r', encoding='utf-8') as f:
-        text_labels = json.loads(f.read())
+    with open(data_label_file, 'r', encoding='utf-8') as f:
+        data_labels = json.loads(f.read())
 
     conn = create_connection(db_file)
     create_table(db_file, conn)
 
+    # @app.route('/get_data', methods=['POST'])
+    # def get_data():
+    #     data_json = {
+    #                 'image_files': img_str_arr,
+    #                 'image_dir': image_files,
+    #                 'text_files': text_str_arr,
+    #                 'text_dir': text_files,
+    #                 'image_labels': image_labels,
+    #                 'text_labels': text_labels
+    #                 }
+
+    #     return data_json
+
+    # @app.route('/grab_data', methods=['POST'])
+    # def grab_data():
+    #     file_name = request.json['filename']
+    #     if file_name.endswith(('.jpg', '.jpeg', '.png')):
+    #         file_type = 'image'
+    #     else:
+    #         file_type = 'text'
+    #     label = request.json['label']
+
+    #     insert_into_db(conn, file_name, file_type, label)
+    #     return {}
+
     @app.route('/get_data', methods=['POST'])
     def get_data():
-        data_json = {
-                    'image_files': img_str_arr,
-                    'image_dir': image_files,
-                    'text_files': text_str_arr,
-                    'text_dir': text_files,
-                    'image_labels': image_labels,
-                    'text_labels': text_labels
-                    }
+        response = jsonify({'data': data_labels})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
 
-        return data_json
-
-    @app.route('/grab_data', methods=['POST'])
-    def grab_data():
-        file_name = request.json['filename']
-        if file_name.endswith(('.jpg', '.jpeg', '.png')):
-            file_type = 'image'
-        else:
-            file_type = 'text'
-        label = request.json['label']
-
-        insert_into_db(conn, file_name, file_type, label)
+    @app.route('/send_data', methods=['POST'])
+    def send_data():
+        insert_into_db(conn, request.json)
         return {}
 
     return app

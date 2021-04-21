@@ -9,3 +9,5 @@ Also you will need `sqlite-browser` to view the annotations in click-image-flask
 1. In click-image, run `npm start`
    
 2. In click-image-flask, run `python server.py`
+
+3. Mount a python image server directly in your `data` folder: `python -m http.server 8000`
