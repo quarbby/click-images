@@ -26,7 +26,7 @@ def create_app():
         c = conn.cursor()
         c.execute('''CREATE TABLE IF NOT EXISTS multimodallabels 
                 (N1, N2, N3, R1, R2, R3, C1, C2, C3, caption, firstimg,
-                secondimg, xlxmert, attngan, date)    
+                secondimg, dfgan, attngan, date)    
                 ''')
         conn.commit()
 
@@ -36,7 +36,7 @@ def create_app():
             sqlite_insert_query = """INSERT INTO multimodallabels 
                         ('N1', 'N2', 'N3', 'R1', 'R2', 'R3', 'C1', 'C2', 'C3', 
                             'caption', 'firstimg',
-                            'secondimg', 'xlxmert', 'attngan', 'date') 
+                            'secondimg', 'dfgan', 'dfganbaselineimg', 'date') 
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );"""
 
             date_string = datetime.now().strftime("%m-%d-%YT%H:%M:%S")
@@ -46,7 +46,7 @@ def create_app():
                 json_data['RState'][0], json_data['RState'][1], json_data['RState'][2],
                 json_data['CState'][0], json_data['CState'][1], json_data['CState'][2],
                 json_data['caption'], json_data['firstimg'],
-                json_data['secondimg'], json_data['xlxmertimg'], json_data['attnganimg'], date_string
+                json_data['secondimg'], json_data['dfganimg'], json_data['dfganbaselineimg'], date_string
             )
 
             print(data_tuple)
@@ -64,7 +64,6 @@ def create_app():
             base64_encoded_data = base64.b64encode(binary_file_data)
             return base64_encoded_data.decode('utf-8')
 
-    data_dir = './data/multimodal/'
     db_file = 'labels_multimodal.db'
 
     # data_label_file = './data/multimodallabels.json'
@@ -101,7 +100,7 @@ def create_app():
 
     @app.route('/get_data', methods=['POST'])
     def get_data():
-        data_label_file = './data/multimodallabels.json'
+        data_label_file = './data/test_generated_data.json'
         with open(data_label_file, 'r', encoding='utf-8') as f:
             data_labels = json.loads(f.read())
 

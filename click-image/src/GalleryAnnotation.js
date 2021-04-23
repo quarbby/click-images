@@ -6,7 +6,7 @@ import Alert from '@material-ui/lab/Alert';
 
 class GalleryAnnotation extends Component {
     // N1 R1 C1 are secondimg
-    // N2 R2 C2 are xlxmert
+    // N2 R2 C2 are dfgan
     // N3 R3 C3 are attngan
 
     state = {
@@ -16,8 +16,8 @@ class GalleryAnnotation extends Component {
         CState: [1,2,3],
         caption: 'this is a test caption',
         firstimg: 'orange.jpg',
-        xlxmertimg: 'orange.jpg',
-        attnganimg: 'orange.jpg',
+        dfganimg: 'orange.jpg',
+        dfganbaselineimg: 'orange.jpg',
         secondimg: 'orange.jpg',
         fulldata: [],
         firstTime: true
@@ -33,8 +33,8 @@ class GalleryAnnotation extends Component {
 
         this.state.caption = this.state.fulldata[this.state.index]['caption']
         this.state.firstimg = this.state.fulldata[this.state.index]['firstimg']
-        this.state.xlxmertimg = this.state.fulldata[this.state.index]['xlxmertimg']
-        this.state.attnganimg = this.state.fulldata[this.state.index]['attnganimg']
+        this.state.dfganimg = this.state.fulldata[this.state.index]['dfganimg']
+        this.state.dfganbaselineimg = this.state.fulldata[this.state.index]['dfganbaselineimg']
         this.state.secondimg = this.state.fulldata[this.state.index]['secondimg']
 
         this.renderPage();
@@ -59,8 +59,8 @@ class GalleryAnnotation extends Component {
         dataToSend['CState'] = this.state.CState;
         dataToSend['caption'] = this.state.caption;
         dataToSend['firstimg'] = this.state.firstimg;
-        dataToSend['xlxmertimg'] = this.state.xlxmertimg;
-        dataToSend['attnganimg'] = this.state.attnganimg;
+        dataToSend['dfganimg'] = this.state.dfganimg;
+        dataToSend['dfganbaselineimg'] = this.state.dfganbaselineimg;
         dataToSend['secondimg'] = this.state.secondimg;
 
         const response = await axios.post('http://localhost:5000/send_data', dataToSend)
@@ -72,8 +72,8 @@ class GalleryAnnotation extends Component {
         else {
             this.state.caption = this.state.fulldata[this.state.index]['caption']
             this.state.firstimg = this.state.fulldata[this.state.index]['firstimg']
-            this.state.xlxmertimg = this.state.fulldata[this.state.index]['xlxmertimg']
-            this.state.attnganimg = this.state.fulldata[this.state.index]['attnganimg']
+            this.state.dfganimg = this.state.fulldata[this.state.index]['dfganimg']
+            this.state.dfganbaselineimg = this.state.fulldata[this.state.index]['dfganbaselineimg']
             this.state.secondimg = this.state.fulldata[this.state.index]['secondimg']
 
             this.renderPage();
@@ -119,8 +119,8 @@ class GalleryAnnotation extends Component {
                                 <TableRow>
                                     <TableCell></TableCell>
                                     <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.secondimg} /></TableCell>
-                                    <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.xlxmertimg} /></TableCell>
-                                    <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.attnganimg} /></TableCell>
+                                    <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.dfganimg} /></TableCell>
+                                    <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.dfganbaselineimg} /></TableCell>
                                 </TableRow>
                                 <TableRow>
                                     <TableCell><b>Naturalness: </b>How natural is the image?</TableCell>
