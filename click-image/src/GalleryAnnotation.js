@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { Button, Grid, Table, TableRow, TableBody, TableCell, Select } from '@material-ui/core';
-import Alert from '@material-ui/lab/Alert';
-
+import { Button, Grid, Table, TableRow, TableBody, TableCell, Select, Checkbox } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
 
 class GalleryAnnotation extends Component {
     // N1 R1 C1 are secondimg
-    // N2 R2 C2 are dfgan
-    // N3 R3 C3 are attngan
+    // N2 R2 C2 are dfgangenerated
+    // N3 R3 C3 are dfganbaseline
 
     state = {
         index: 0,
@@ -20,7 +19,9 @@ class GalleryAnnotation extends Component {
         dfganbaselineimg: 'orange.jpg',
         secondimg: 'orange.jpg',
         fulldata: [],
-        firstTime: true
+        yeschecked: false,
+        nochecked: false,
+        endData: false
     }
 
     renderPage() {
@@ -29,13 +30,20 @@ class GalleryAnnotation extends Component {
 
     async componentDidMount(){
         const response = await axios.post('http://localhost:5000/get_data')
-        this.state.fulldata = response.data['data']
+        //this.state.fulldata = response.data['data']
 
-        this.state.caption = this.state.fulldata[this.state.index]['caption']
-        this.state.firstimg = this.state.fulldata[this.state.index]['firstimg']
-        this.state.dfganimg = this.state.fulldata[this.state.index]['dfganimg']
-        this.state.dfganbaselineimg = this.state.fulldata[this.state.index]['dfganbaselineimg']
-        this.state.secondimg = this.state.fulldata[this.state.index]['secondimg']
+        this.setState({fulldata: response.data['data']});
+        this.setState({caption: this.state.fulldata[this.state.index]['caption']});
+        this.setState({firstimg: this.state.fulldata[this.state.index]['firstimg']});
+        this.setState({dfganimg: this.state.fulldata[this.state.index]['dfganimg']});
+        this.setState({dfganbaselineimg: this.state.fulldata[this.state.index]['dfganbaselineimg']});
+        this.setState({secondimg: this.state.fulldata[this.state.index]['secondimg']});
+
+        //this.state.caption = this.state.fulldata[this.state.index]['caption']
+        // this.state.firstimg = this.state.fulldata[this.state.index]['firstimg']
+        // this.state.dfganimg = this.state.fulldata[this.state.index]['dfganimg']
+        // this.state.dfganbaselineimg = this.state.fulldata[this.state.index]['dfganbaselineimg']
+        // this.state.secondimg = this.state.fulldata[this.state.index]['secondimg']
 
         this.renderPage();
     }
@@ -52,6 +60,16 @@ class GalleryAnnotation extends Component {
         this.state.CState[parseInt(event.target.name)] = event.target.value;
     };
 
+    handleyescheckChange = (event) => {
+        this.setState({yeschecked: event.target.checked});
+        this.setState({nochecked: !event.target.checked});
+    }
+
+    handlenocheckChange = (event) => {
+        this.setState({nochecked: event.target.checked});
+        this.setState({yeschecked: !event.target.checked});
+    }
+
     async buttonClickHandler() {
         let dataToSend = {};
         dataToSend['NState'] = this.state.NState;
@@ -62,19 +80,24 @@ class GalleryAnnotation extends Component {
         dataToSend['dfganimg'] = this.state.dfganimg;
         dataToSend['dfganbaselineimg'] = this.state.dfganbaselineimg;
         dataToSend['secondimg'] = this.state.secondimg;
+        dataToSend['yeschecked'] = this.state.yeschecked;
+        dataToSend['nochecked'] = this.state.nochecked;
 
         const response = await axios.post('http://localhost:5000/send_data', dataToSend)
-        this.state.index = this.state.index + 1;
+        this.setState({index: this.state.index + 1});
 
         if (this.state.index == this.state.fulldata.length) {
-            alert('That\'s all there is! Thank you for helping!')
+            this.setState({endData: true})
+            // alert('That\'s all there is! Thank you for helping!')
         }
         else {
-            this.state.caption = this.state.fulldata[this.state.index]['caption']
-            this.state.firstimg = this.state.fulldata[this.state.index]['firstimg']
-            this.state.dfganimg = this.state.fulldata[this.state.index]['dfganimg']
-            this.state.dfganbaselineimg = this.state.fulldata[this.state.index]['dfganbaselineimg']
-            this.state.secondimg = this.state.fulldata[this.state.index]['secondimg']
+            this.setState({caption: this.state.fulldata[this.state.index]['caption']});
+            this.setState({firstimg: this.state.fulldata[this.state.index]['firstimg']});
+            this.setState({dfganimg: this.state.fulldata[this.state.index]['dfganimg']});
+            this.setState({dfganbaselineimg: this.state.fulldata[this.state.index]['dfganbaselineimg']});
+            this.setState({secondimg: this.state.fulldata[this.state.index]['secondimg']});
+            this.setState({yeschecked: false});
+            this.setState({nochecked: false});
 
             this.renderPage();
         }
@@ -84,116 +107,140 @@ class GalleryAnnotation extends Component {
     render(){
         return (
             <div>
-                {/* <Alert name='alert' display='none'></Alert> */}
+                {
+                this.state.endData == true? (
+                    <Grid item xs={12} container justify='center'>
+                        <Alert name='alert' display='none'>That's All! Thank you for helping evaluate the images</Alert>
+                    </Grid>
+                ) : (
+                <div>
+                    <Grid item xs={12} container justify='center'>
+                        <b>Evaluation Task:</b> 
+                        Please rate how much each image satisfies the caption from 1 to 3 on the metric provided, where 3 is the best and 1 is worst.
+                    </Grid> 
+        
+                    <Grid container spacing={2} justify='center' style={{ width: '100%' }}>
+                        <Grid item xs={12} container justify='center'>
+                            <Table>
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell><b>Caption</b></TableCell>
+                                        <TableCell><b>First Image/ Left Image</b></TableCell>
+                                        <TableCell></TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>{this.state.caption}</TableCell>
+                                        <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.firstimg}/> </TableCell>
+                                        <TableCell></TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>Does the First Image statisfy the caption? </TableCell>
+                                        <TableCell>YES<Checkbox checked={this.state.yeschecked} onChange={this.handleyescheckChange} checked={this.state.yeschecked} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                        NO<Checkbox checked={this.state.nochecked} onChange={this.handlenocheckChange} checked={this.state.nochecked} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                        </TableCell>
+                                        <TableCell></TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </Grid>
 
-                <Grid item xs={12} container justify='center'>
-                    <b>Evaluation Task: </b> <br></br>
-                    Please rate each image from 1 to 3 on the metric provided, where 3 is the best and 1 is worst.
-                </Grid>
-    
-                <Grid container spacing={2} justify='center' style={{ width: '100%' }}>
-                    <Grid item xs={12} container justify='center'>
-                        <Table>
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell></TableCell>
-                                    <TableCell><b>Caption</b></TableCell>
-                                    <TableCell><b>First Image</b></TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell></TableCell>
-                                    <TableCell>{this.state.caption}</TableCell>
-                                    <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.firstimg}/> </TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
+                        <Grid name='generatedimg-grid'>
+                        {
+                            this.state.nochecked == true? (
+                                <div>
+                                    <Grid item xs={12} container justify='center'>
+                                        <b>Generated Images/ Right Images</b>
+                                    </Grid>
+                                    <Grid item xs={12} container justify='center'>
+                                        <Table>
+                                            <TableBody>
+                                        <TableRow>
+                                            <TableCell></TableCell>
+                                            <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.secondimg} /></TableCell>
+                                            <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.dfganimg} /></TableCell>
+                                            <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.dfganbaselineimg} /></TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell><b>Naturalness: </b>How natural is the image?</TableCell>
+                                            <TableCell> 
+                                                <Select native onChange={this.handleN1Change} name={'1'}>
+                                                    <option value={1}>1</option>
+                                                    <option value={2}>2</option>
+                                                    <option value={3}>3</option></Select>
+                                            </TableCell>
+                                            <TableCell> 
+                                                <Select native onChange={this.handleN1Change} name={'2'}>
+                                                    <option value={1}>1</option>
+                                                    <option value={2}>2</option>
+                                                    <option value={3}>3</option></Select>
+                                            </TableCell>
+                                            <TableCell> 
+                                                <Select native onChange={this.handleN1Change} name={'3'}>
+                                                    <option value={1}>1</option>
+                                                    <option value={2}>2</option>
+                                                    <option value={3}>3</option></Select>
+                                            </TableCell>                           
+                                        </TableRow>      
+                                        <TableRow>
+                                            <TableCell><b>Relevance: </b>How relevant is the image?</TableCell>
+                                            <TableCell> 
+                                                <Select native onChange={this.handleR1Change} name={'1'}>
+                                                    <option value={1}>1</option>
+                                                    <option value={2}>2</option>
+                                                    <option value={3}>3</option></Select>
+                                            </TableCell>
+                                            <TableCell> 
+                                                <Select native onChange={this.handleR1Change} name={'2'}>
+                                                    <option value={1}>1</option>
+                                                    <option value={2}>2</option>
+                                                    <option value={3}>3</option></Select>
+                                            </TableCell>
+                                            <TableCell> 
+                                                <Select native onChange={this.handleR1Change} name={'3'}>
+                                                    <option value={1}>1</option>
+                                                    <option value={2}>2</option>
+                                                    <option value={3}>3</option></Select>
+                                            </TableCell>                           
+                                        </TableRow>  
+                                        <TableRow>
+                                            <TableCell><b>Correctness: </b>How correct is the image?</TableCell>
+                                            <TableCell> 
+                                                <Select native onChange={this.handleC1Change} name={'1'}>
+                                                    <option value={1}>1</option>
+                                                    <option value={2}>2</option>
+                                                    <option value={3}>3</option></Select>
+                                            </TableCell>
+                                            <TableCell> 
+                                                <Select native onChange={this.handleC1Change} name={'2'}>
+                                                    <option value={1}>1</option>
+                                                    <option value={2}>2</option>
+                                                    <option value={3}>3</option></Select>
+                                            </TableCell>
+                                            <TableCell> 
+                                                <Select native onChange={this.handleC1Change} name={'3'}>
+                                                    <option value={1}>1</option>
+                                                    <option value={2}>2</option>
+                                                    <option value={3}>3</option></Select>
+                                            </TableCell>                           
+                                        </TableRow>  
+                                    </TableBody>
+                                </Table>
+                                    </Grid>
+                                </div>
+
+
+                            ) : (<Grid item xs={12} container justify='center'> </Grid>)
+                        }
+
+                        </Grid>
+        
+                        <Grid container item xs={12} justify='center' alignItems='center'>
+                            <Button variant='outlined' style={{ margin: '0 1vw' }} onClick={() => this.buttonClickHandler()}>Submit</Button>
+                        </Grid>
                     </Grid>
-    
-                    <Grid item xs={12} container justify='center'>
-                        <b>Generated Images</b>
-                    </Grid>
-    
-                    <Grid item xs={12} container justify='center'>
-                        <Table>
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell></TableCell>
-                                    <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.secondimg} /></TableCell>
-                                    <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.dfganimg} /></TableCell>
-                                    <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.dfganbaselineimg} /></TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell><b>Naturalness: </b>How natural is the image?</TableCell>
-                                    <TableCell> 
-                                        <Select native value={1} onChange={this.handleN1Change} name={'1'}>
-                                            <option value={1}>1</option>
-                                            <option value={2}>2</option>
-                                            <option value={3}>3</option></Select>
-                                    </TableCell>
-                                    <TableCell> 
-                                        <Select native value={2} onChange={this.handleN1Change} name={'2'}>
-                                            <option value={1}>1</option>
-                                            <option value={2}>2</option>
-                                            <option value={3}>3</option></Select>
-                                    </TableCell>
-                                    <TableCell> 
-                                        <Select native value={3} onChange={this.handleN1Change} name={'3'}>
-                                            <option value={1}>1</option>
-                                            <option value={2}>2</option>
-                                            <option value={3}>3</option></Select>
-                                    </TableCell>                           
-                                </TableRow>      
-                                <TableRow>
-                                    <TableCell><b>Relevance: </b>How relevant is the image?</TableCell>
-                                    <TableCell> 
-                                        <Select native value={1} onChange={this.handleR1Change} name={'1'}>
-                                            <option value={1}>1</option>
-                                            <option value={2}>2</option>
-                                            <option value={3}>3</option></Select>
-                                    </TableCell>
-                                    <TableCell> 
-                                        <Select native value={2} onChange={this.handleR1Change} name={'2'}>
-                                            <option value={1}>1</option>
-                                            <option value={2}>2</option>
-                                            <option value={3}>3</option></Select>
-                                    </TableCell>
-                                    <TableCell> 
-                                        <Select native value={3} onChange={this.handleR1Change} name={'3'}>
-                                            <option value={1}>1</option>
-                                            <option value={2}>2</option>
-                                            <option value={3}>3</option></Select>
-                                    </TableCell>                           
-                                </TableRow>  
-                                <TableRow>
-                                    <TableCell><b>Relevance: </b>How correct is the image?</TableCell>
-                                    <TableCell> 
-                                        <Select native value={1} onChange={this.handleC1Change} name={'1'}>
-                                            <option value={1}>1</option>
-                                            <option value={2}>2</option>
-                                            <option value={3}>3</option></Select>
-                                    </TableCell>
-                                    <TableCell> 
-                                        <Select native value={2} onChange={this.handleC1Change} name={'2'}>
-                                            <option value={1}>1</option>
-                                            <option value={2}>2</option>
-                                            <option value={3}>3</option></Select>
-                                    </TableCell>
-                                    <TableCell> 
-                                        <Select native value={3} onChange={this.handleC1Change} name={'3'}>
-                                            <option value={1}>1</option>
-                                            <option value={2}>2</option>
-                                            <option value={3}>3</option></Select>
-                                    </TableCell>                           
-                                </TableRow>  
-                            </TableBody>
-                        </Table>
-                    </Grid>
-    
-                    <Grid container item xs={12} justify='center' alignItems='center'>
-                        <Button variant='outlined' style={{ margin: '0 1vw' }} onClick={() => this.buttonClickHandler()}>Submit</Button>
-                    </Grid>
-                </Grid>
-    
+                </div>
+                )
+                }
     
             </div>
         )
