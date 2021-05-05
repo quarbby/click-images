@@ -25,40 +25,64 @@ def create_app():
 
     def create_table(db_file, conn):
         c = conn.cursor()
-        c.execute('''CREATE TABLE IF NOT EXISTS multimodallabels 
-                (N1, N2, N3, R1, R2, R3, C1, C2, C3, caption, firstimg,
-                secondimg, dfgan, dfganbaselineimg, yeschecked, nochecked, date)    
-                ''')
+        c.execute(
+            '''CREATE TABLE IF NOT EXISTS originallabels
+            (caption, firstimg, yeschecked, date)
+            '''
+        )
+
+        c.execute(
+            '''CREATE TABLE IF NOT EXISTS imglabels
+            (imgtype, imgname, naturalness, relevance, correctness, date)
+            '''
+        )
+
         conn.commit()
 
     def insert_into_db(conn, json_data):
+        date_string = datetime.now().strftime("%m-%d-%YT%H:%M:%S")
+
+        # Insert original label
         try:
             cursor = conn.cursor()
-            sqlite_insert_query = """INSERT INTO multimodallabels 
-                        ('N1', 'N2', 'N3', 'R1', 'R2', 'R3', 'C1', 'C2', 'C3', 
-                            'caption', 'firstimg',
-                            'secondimg', 'dfgan', 'dfganbaselineimg', 'yeschecked', 'nochecked', 'date') 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );"""
+            original_insert_query = """INSERT INTO originallabels
+                                    ('caption', 'firstimg', 'yeschecked', 'date')
+                                    VALUES (?,?,?,?);
+                                    """
+            data_tuple = ( json_data['caption'], json_data['firstimg'], json_data['yeschecked'], date_string
+                        )
 
-            date_string = datetime.now().strftime("%m-%d-%YT%H:%M:%S")
-
-            # data_tuple = (file_name, label, file_type, date_string)
-            data_tuple = ( json_data['NState'][0], json_data['NState'][1], json_data['NState'][2],
-                json_data['RState'][0], json_data['RState'][1], json_data['RState'][2],
-                json_data['CState'][0], json_data['CState'][1], json_data['CState'][2],
-                json_data['caption'], json_data['firstimg'],
-                json_data['secondimg'], json_data['dfganimg'], json_data['dfganbaselineimg'], 
-                json_data['yeschecked'], json_data['nochecked'], date_string
-            )
-
-            print(data_tuple)
-
-            cursor.execute(sqlite_insert_query, data_tuple)
-            print(cursor.rowcount, "Record inserted successfully into table")
+            cursor.execute(original_insert_query, data_tuple)
+            print(cursor.rowcount, "Record inserted successfully into original labels")
             conn.commit() 
+        except Error as e:
+            print(e)
+
+        # Insert count for each image
+        try:
+            cursor = conn.cursor()
+            sqlite_insert_query = """INSERT INTO imglabels
+                                    ('imgtype', 'imgname', 'naturalness', 'relevance', 'correctness', 'date')
+                                    VALUES (?,?,?,?,?,?);
+                                    """
+            data_tuple_secondimg = ( 'img1', json_data['secondimg'], json_data['NState'][0], 
+                            json_data['RState'][0], json_data['CState'][0], date_string
+                        )
+            data_tuple_dfgan = ( 'dfgan', json_data['dfganimg'], json_data['NState'][1], 
+                            json_data['RState'][1], json_data['CState'][1], date_string
+                        )
+            data_tuple_dfganbaselineimg = ( 'dfganbaseline', json_data['dfganbaselineimg'], json_data['NState'][2], 
+                            json_data['RState'][2], json_data['CState'][2], date_string
+                        )
+
+            records = [data_tuple_secondimg, data_tuple_dfgan, data_tuple_dfganbaselineimg]
+
+            cursor.executemany(sqlite_insert_query, records)
+            print(cursor.rowcount, "Records inserted successfully into sqlite labels")
+            conn.commit()
 
         except Error as e:
-            print (e)
+            print(e)
 
     def img_to_str(img):
         with open(img, 'rb') as binary_file:
@@ -66,7 +90,7 @@ def create_app():
             base64_encoded_data = base64.b64encode(binary_file_data)
             return base64_encoded_data.decode('utf-8')
 
-    db_file = 'labels_multimodal.db'
+    db_file = 'labels_multimodal_binary.db'
 
     conn = create_connection(db_file)
     create_table(db_file, conn)

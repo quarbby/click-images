@@ -137,7 +137,7 @@ class GalleryAnnotation extends Component {
         dataToSend['dfganbaselineimg'] = this.state.dfganbaselineimg;
         dataToSend['secondimg'] = this.state.secondimg;
         dataToSend['yeschecked'] = this.state.yeschecked;
-        dataToSend['nochecked'] = this.state.nochecked;
+        // dataToSend['nochecked'] = this.state.nochecked;
 
         console.log(dataToSend)
 
