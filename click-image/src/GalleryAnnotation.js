@@ -10,9 +10,12 @@ class GalleryAnnotation extends Component {
 
     state = {
         index: 0,
-        NState: [1,2,3],
-        RState: [1,2,3],
-        CState: [1,2,3],
+        NStateyes: [false,false,false],
+        NStateno: [false,false,false],
+        RStateyes: [false,false,false],
+        RStateno: [false,false,false],
+        CStateyes: [false,false,false],
+        CStateno: [false,false,false],
         caption: 'this is a test caption',
         firstimg: 'orange.jpg',
         dfganimg: 'orange.jpg',
@@ -30,20 +33,13 @@ class GalleryAnnotation extends Component {
 
     async componentDidMount(){
         const response = await axios.post('http://localhost:5000/get_data')
-        //this.state.fulldata = response.data['data']
-
         this.setState({fulldata: response.data['data']});
+
         this.setState({caption: this.state.fulldata[this.state.index]['caption']});
         this.setState({firstimg: this.state.fulldata[this.state.index]['firstimg']});
         this.setState({dfganimg: this.state.fulldata[this.state.index]['dfganimg']});
         this.setState({dfganbaselineimg: this.state.fulldata[this.state.index]['dfganbaselineimg']});
         this.setState({secondimg: this.state.fulldata[this.state.index]['secondimg']});
-
-        //this.state.caption = this.state.fulldata[this.state.index]['caption']
-        // this.state.firstimg = this.state.fulldata[this.state.index]['firstimg']
-        // this.state.dfganimg = this.state.fulldata[this.state.index]['dfganimg']
-        // this.state.dfganbaselineimg = this.state.fulldata[this.state.index]['dfganbaselineimg']
-        // this.state.secondimg = this.state.fulldata[this.state.index]['secondimg']
 
         this.renderPage();
     }
@@ -70,11 +66,71 @@ class GalleryAnnotation extends Component {
         this.setState({yeschecked: !event.target.checked});
     }
 
+    handlenstateyescheckChange = (e, val) => {
+        const yesItems = [...this.state.NStateyes];
+        yesItems[val] = e.target.checked;
+        this.setState({ NStateyes: yesItems });
+
+        const noItems = [...this.state.NStateno];
+        noItems[val] = !e.target.checked;
+        this.setState({ NStateno: noItems });
+    }
+
+    handlenstatenocheckChange = (e, val) => {
+        const yesItems = [...this.state.NStateyes];
+        yesItems[val] = !e.target.checked;
+        this.setState({ NStateyes: yesItems });
+
+        const noItems = [...this.state.NStateno];
+        noItems[val] = e.target.checked;
+        this.setState({ NStateno: noItems });    
+    }
+
+    handlerstateyescheckChange = (e, val) => {
+        const yesItems = [...this.state.RStateyes];
+        yesItems[val] = e.target.checked;
+        this.setState({ RStateyes: yesItems });
+
+        const noItems = [...this.state.RStateno];
+        noItems[val] = !e.target.checked;
+        this.setState({ RStateno: noItems });
+    }
+
+    handlerstatenocheckChange = (e, val) => {
+        const yesItems = [...this.state.RStateyes];
+        yesItems[val] = !e.target.checked;
+        this.setState({ RStateyes: yesItems });
+
+        const noItems = [...this.state.RStateno];
+        noItems[val] = e.target.checked;
+        this.setState({ RStateno: noItems });    
+    }
+
+    handlecstateyescheckChange = (e, val) => {
+        const yesItems = [...this.state.CStateyes];
+        yesItems[val] = e.target.checked;
+        this.setState({ CStateyes: yesItems });
+
+        const noItems = [...this.state.CStateno];
+        noItems[val] = !e.target.checked;
+        this.setState({ CStateno: noItems });
+    }
+
+    handlecstatenocheckChange = (e, val) => {
+        const yesItems = [...this.state.CStateyes];
+        yesItems[val] = !e.target.checked;
+        this.setState({ CStateyes: yesItems });
+
+        const noItems = [...this.state.CStateno];
+        noItems[val] = e.target.checked;
+        this.setState({ CStateno: noItems });    
+    }
+
     async buttonClickHandler() {
         let dataToSend = {};
-        dataToSend['NState'] = this.state.NState;
-        dataToSend['RState'] = this.state.RState;
-        dataToSend['CState'] = this.state.CState;
+        dataToSend['NState'] = this.state.NStateyes;
+        dataToSend['RState'] = this.state.RStateyes;
+        dataToSend['CState'] = this.state.CStateyes;
         dataToSend['caption'] = this.state.caption;
         dataToSend['firstimg'] = this.state.firstimg;
         dataToSend['dfganimg'] = this.state.dfganimg;
@@ -82,6 +138,8 @@ class GalleryAnnotation extends Component {
         dataToSend['secondimg'] = this.state.secondimg;
         dataToSend['yeschecked'] = this.state.yeschecked;
         dataToSend['nochecked'] = this.state.nochecked;
+
+        console.log(dataToSend)
 
         const response = await axios.post('http://localhost:5000/send_data', dataToSend)
         this.setState({index: this.state.index + 1});
@@ -98,6 +156,14 @@ class GalleryAnnotation extends Component {
             this.setState({secondimg: this.state.fulldata[this.state.index]['secondimg']});
             this.setState({yeschecked: false});
             this.setState({nochecked: false});
+
+            const newitems = [false, false, false]
+            this.setState({NStateyes: newitems});
+            this.setState({NStateno: newitems});
+            this.setState({RStateyes: newitems});
+            this.setState({RStateno: newitems});
+            this.setState({CStateyes: newitems});
+            this.setState({CStateno: newitems});
 
             this.renderPage();
         }
@@ -161,67 +227,40 @@ class GalleryAnnotation extends Component {
                                             <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.dfganbaselineimg} /></TableCell>
                                         </TableRow>
                                         <TableRow>
-                                            <TableCell><b>Naturalness: </b>How natural is the image?</TableCell>
-                                            <TableCell> 
-                                                <Select native onChange={this.handleN1Change} name={'1'}>
-                                                    <option value={1}>1</option>
-                                                    <option value={2}>2</option>
-                                                    <option value={3}>3</option></Select>
+                                            <TableCell><b>Naturalness: </b>Is this image Natural?</TableCell>
+                                            <TableCell>YES<Checkbox checked={this.state.NStateyes[0]} onChange={(e,val) => this.handlenstateyescheckChange(e,0)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            NO<Checkbox checked={this.state.NStateno[0]} onChange={(e,val) => this.handlenstatenocheckChange(e,0)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
                                             </TableCell>
-                                            <TableCell> 
-                                                <Select native onChange={this.handleN1Change} name={'2'}>
-                                                    <option value={1}>1</option>
-                                                    <option value={2}>2</option>
-                                                    <option value={3}>3</option></Select>
+                                            <TableCell>YES<Checkbox checked={this.state.NStateyes[1]} onChange={(e,val) => this.handlenstateyescheckChange(e,1)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            NO<Checkbox checked={this.state.NStateno[1]} onChange={(e,val) => this.handlenstatenocheckChange(e,1)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
                                             </TableCell>
-                                            <TableCell> 
-                                                <Select native onChange={this.handleN1Change} name={'3'}>
-                                                    <option value={1}>1</option>
-                                                    <option value={2}>2</option>
-                                                    <option value={3}>3</option></Select>
-                                            </TableCell>                           
-                                        </TableRow>      
+                                            <TableCell>YES<Checkbox checked={this.state.NStateyes[2]} onChange={(e,val) => this.handlenstateyescheckChange(e,2)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            NO<Checkbox checked={this.state.NStateno[2]} onChange={(e,val) => this.handlenstatenocheckChange(e,2)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            </TableCell>                       
+                                        </TableRow>
                                         <TableRow>
-                                            <TableCell><b>Relevance: </b>How relevant is the image?</TableCell>
-                                            <TableCell> 
-                                                <Select native onChange={this.handleR1Change} name={'1'}>
-                                                    <option value={1}>1</option>
-                                                    <option value={2}>2</option>
-                                                    <option value={3}>3</option></Select>
+                                            <TableCell><b>Relevance: </b>Is the image Relevant to the caption?</TableCell>
+                                            <TableCell>YES<Checkbox checked={this.state.RStateyes[0]} onChange={(e,val) => this.handlerstateyescheckChange(e,0)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            NO<Checkbox checked={this.state.RStateno[0]} onChange={(e,val) => this.handlerstatenocheckChange(e,0)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
                                             </TableCell>
-                                            <TableCell> 
-                                                <Select native onChange={this.handleR1Change} name={'2'}>
-                                                    <option value={1}>1</option>
-                                                    <option value={2}>2</option>
-                                                    <option value={3}>3</option></Select>
+                                            <TableCell>YES<Checkbox checked={this.state.RStateyes[1]} onChange={(e,val) => this.handlerstateyescheckChange(e,1)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            NO<Checkbox checked={this.state.RStateno[1]} onChange={(e,val) => this.handlerstatenocheckChange(e,1)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
                                             </TableCell>
-                                            <TableCell> 
-                                                <Select native onChange={this.handleR1Change} name={'3'}>
-                                                    <option value={1}>1</option>
-                                                    <option value={2}>2</option>
-                                                    <option value={3}>3</option></Select>
-                                            </TableCell>                           
+                                            <TableCell>YES<Checkbox checked={this.state.RStateyes[2]} onChange={(e,val) => this.handlerstateyescheckChange(e,2)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            NO<Checkbox checked={this.state.RStateno[2]} onChange={(e,val) => this.handlerstatenocheckChange(e,2)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            </TableCell>                   
                                         </TableRow>  
                                         <TableRow>
-                                            <TableCell><b>Correctness: </b>How correct is the image?</TableCell>
-                                            <TableCell> 
-                                                <Select native onChange={this.handleC1Change} name={'1'}>
-                                                    <option value={1}>1</option>
-                                                    <option value={2}>2</option>
-                                                    <option value={3}>3</option></Select>
+                                            <TableCell><b>Correctness: </b>Is the image Correct?</TableCell>
+                                            <TableCell>YES<Checkbox checked={this.state.CStateyes[0]} onChange={(e,val) => this.handlecstateyescheckChange(e,0)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            NO<Checkbox checked={this.state.CStateno[0]} onChange={(e,val) => this.handlecstatenocheckChange(e,0)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
                                             </TableCell>
-                                            <TableCell> 
-                                                <Select native onChange={this.handleC1Change} name={'2'}>
-                                                    <option value={1}>1</option>
-                                                    <option value={2}>2</option>
-                                                    <option value={3}>3</option></Select>
+                                            <TableCell>YES<Checkbox checked={this.state.CStateyes[1]} onChange={(e,val) => this.handlecstateyescheckChange(e,1)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            NO<Checkbox checked={this.state.CStateno[1]} onChange={(e,val) => this.handlecstatenocheckChange(e,1)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
                                             </TableCell>
-                                            <TableCell> 
-                                                <Select native onChange={this.handleC1Change} name={'3'}>
-                                                    <option value={1}>1</option>
-                                                    <option value={2}>2</option>
-                                                    <option value={3}>3</option></Select>
-                                            </TableCell>                           
+                                            <TableCell>YES<Checkbox checked={this.state.CStateyes[2]} onChange={(e,val) => this.handlecstateyescheckChange(e,2)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            NO<Checkbox checked={this.state.CStateno[2]} onChange={(e,val) => this.handlecstatenocheckChange(e,2)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            </TableCell>                      
                                         </TableRow>  
                                     </TableBody>
                                 </Table>

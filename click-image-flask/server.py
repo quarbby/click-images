@@ -4,6 +4,7 @@ import os
 import json
 from datetime import datetime
 import base64
+import random
 
 import sqlite3
 from sqlite3 import Error
@@ -76,6 +77,7 @@ def create_app():
         with open(data_label_file, 'r', encoding='utf-8') as f:
             data_labels = json.loads(f.read())
 
+        random.shuffle(data_labels)
         response = jsonify({'data': data_labels})
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
