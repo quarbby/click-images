@@ -10,17 +10,15 @@ class GalleryAnnotation extends Component {
 
     state = {
         index: 0,
-        NStateyes: [false,false,false],
-        NStateno: [false,false,false],
-        RStateyes: [false,false,false],
-        RStateno: [false,false,false],
-        CStateyes: [false,false,false],
-        CStateno: [false,false,false],
+        NStateyes: false,
+        NStateno: false,
+        RStateyes: false,
+        RStateno: false,
+        CStateyes: false,
+        CStateno: false,
         caption: 'this is a test caption',
-        firstimg: 'orange.jpg',
-        dfganimg: 'orange.jpg',
-        dfganbaselineimg: 'orange.jpg',
-        secondimg: 'orange.jpg',
+        imgname: 'test',
+        imgtype: 'dfganimg',
         fulldata: [],
         yeschecked: false,
         nochecked: false,
@@ -37,9 +35,8 @@ class GalleryAnnotation extends Component {
 
         this.setState({caption: this.state.fulldata[this.state.index]['caption']});
         this.setState({firstimg: this.state.fulldata[this.state.index]['firstimg']});
-        this.setState({dfganimg: this.state.fulldata[this.state.index]['dfganimg']});
-        this.setState({dfganbaselineimg: this.state.fulldata[this.state.index]['dfganbaselineimg']});
-        this.setState({secondimg: this.state.fulldata[this.state.index]['secondimg']});
+        this.setState({imgtype: this.state.fulldata[this.state.index]['imgtype']})
+        this.setState({imgname: this.state.fulldata[this.state.index]['imgname']})
 
         this.renderPage();
     }
@@ -66,64 +63,34 @@ class GalleryAnnotation extends Component {
         this.setState({yeschecked: !event.target.checked});
     }
 
-    handlenstateyescheckChange = (e, val) => {
-        const yesItems = [...this.state.NStateyes];
-        yesItems[val] = e.target.checked;
-        this.setState({ NStateyes: yesItems });
-
-        const noItems = [...this.state.NStateno];
-        noItems[val] = !e.target.checked;
-        this.setState({ NStateno: noItems });
+    handlenstateyescheckChange = (event) => {
+        this.setState({NStateyes: event.target.checked});
+        this.setState({NStateno: !event.target.checked});
     }
 
-    handlenstatenocheckChange = (e, val) => {
-        const yesItems = [...this.state.NStateyes];
-        yesItems[val] = !e.target.checked;
-        this.setState({ NStateyes: yesItems });
-
-        const noItems = [...this.state.NStateno];
-        noItems[val] = e.target.checked;
-        this.setState({ NStateno: noItems });    
+    handlenstatenocheckChange = (event) => {
+        this.setState({NStateno: event.target.checked});
+        this.setState({NStateyes: !event.target.checked});  
     }
 
-    handlerstateyescheckChange = (e, val) => {
-        const yesItems = [...this.state.RStateyes];
-        yesItems[val] = e.target.checked;
-        this.setState({ RStateyes: yesItems });
-
-        const noItems = [...this.state.RStateno];
-        noItems[val] = !e.target.checked;
-        this.setState({ RStateno: noItems });
+    handlerstateyescheckChange = (event) => {
+        this.setState({RStateyes: event.target.checked});
+        this.setState({RStateno: !event.target.checked});  
     }
 
-    handlerstatenocheckChange = (e, val) => {
-        const yesItems = [...this.state.RStateyes];
-        yesItems[val] = !e.target.checked;
-        this.setState({ RStateyes: yesItems });
-
-        const noItems = [...this.state.RStateno];
-        noItems[val] = e.target.checked;
-        this.setState({ RStateno: noItems });    
+    handlerstatenocheckChange = (event) => {
+        this.setState({RStateno: event.target.checked});
+        this.setState({RStateyes: !event.target.checked});     
     }
 
-    handlecstateyescheckChange = (e, val) => {
-        const yesItems = [...this.state.CStateyes];
-        yesItems[val] = e.target.checked;
-        this.setState({ CStateyes: yesItems });
-
-        const noItems = [...this.state.CStateno];
-        noItems[val] = !e.target.checked;
-        this.setState({ CStateno: noItems });
+    handlecstateyescheckChange = (event) => {
+        this.setState({CStateyes: event.target.checked});
+        this.setState({CStateno: !event.target.checked});  
     }
 
-    handlecstatenocheckChange = (e, val) => {
-        const yesItems = [...this.state.CStateyes];
-        yesItems[val] = !e.target.checked;
-        this.setState({ CStateyes: yesItems });
-
-        const noItems = [...this.state.CStateno];
-        noItems[val] = e.target.checked;
-        this.setState({ CStateno: noItems });    
+    handlecstatenocheckChange = (event) => {
+        this.setState({CStateno: event.target.checked});
+        this.setState({CStateyes: !event.target.checked});    
     }
 
     async buttonClickHandler() {
@@ -132,14 +99,10 @@ class GalleryAnnotation extends Component {
         dataToSend['RState'] = this.state.RStateyes;
         dataToSend['CState'] = this.state.CStateyes;
         dataToSend['caption'] = this.state.caption;
-        dataToSend['firstimg'] = this.state.firstimg;
-        dataToSend['dfganimg'] = this.state.dfganimg;
-        dataToSend['dfganbaselineimg'] = this.state.dfganbaselineimg;
-        dataToSend['secondimg'] = this.state.secondimg;
+        dataToSend['imgname'] = this.state.imgname;
+        dataToSend['imgtype'] = this.state.imgtype;
+        dataToSend['firstimg'] = this.state.firstimg
         dataToSend['yeschecked'] = this.state.yeschecked;
-        // dataToSend['nochecked'] = this.state.nochecked;
-
-        console.log(dataToSend)
 
         const response = await axios.post('http://localhost:5000/send_data', dataToSend)
         this.setState({index: this.state.index + 1});
@@ -151,13 +114,12 @@ class GalleryAnnotation extends Component {
         else {
             this.setState({caption: this.state.fulldata[this.state.index]['caption']});
             this.setState({firstimg: this.state.fulldata[this.state.index]['firstimg']});
-            this.setState({dfganimg: this.state.fulldata[this.state.index]['dfganimg']});
-            this.setState({dfganbaselineimg: this.state.fulldata[this.state.index]['dfganbaselineimg']});
-            this.setState({secondimg: this.state.fulldata[this.state.index]['secondimg']});
+            this.setState({imgtype: this.state.fulldata[this.state.index]['imgtype']});
+            this.setState({imgname: this.state.fulldata[this.state.index]['imgname']});
             this.setState({yeschecked: false});
             this.setState({nochecked: false});
 
-            const newitems = [false, false, false]
+            const newitems = false
             this.setState({NStateyes: newitems});
             this.setState({NStateno: newitems});
             this.setState({RStateyes: newitems});
@@ -222,45 +184,25 @@ class GalleryAnnotation extends Component {
                                             <TableBody>
                                         <TableRow>
                                             <TableCell></TableCell>
-                                            <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.secondimg} /></TableCell>
-                                            <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.dfganimg} /></TableCell>
-                                            <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.dfganbaselineimg} /></TableCell>
+                                            <TableCell><img style={{border: '1px solid black', width:200, height:200}} src={'http://localhost:8000/' + this.state.imgname} /></TableCell>
                                         </TableRow>
                                         <TableRow>
                                             <TableCell><b>Naturalness: </b>Is this image Natural?</TableCell>
-                                            <TableCell>YES<Checkbox checked={this.state.NStateyes[0]} onChange={(e,val) => this.handlenstateyescheckChange(e,0)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            NO<Checkbox checked={this.state.NStateno[0]} onChange={(e,val) => this.handlenstatenocheckChange(e,0)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            </TableCell>
-                                            <TableCell>YES<Checkbox checked={this.state.NStateyes[1]} onChange={(e,val) => this.handlenstateyescheckChange(e,1)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            NO<Checkbox checked={this.state.NStateno[1]} onChange={(e,val) => this.handlenstatenocheckChange(e,1)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            </TableCell>
-                                            <TableCell>YES<Checkbox checked={this.state.NStateyes[2]} onChange={(e,val) => this.handlenstateyescheckChange(e,2)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            NO<Checkbox checked={this.state.NStateno[2]} onChange={(e,val) => this.handlenstatenocheckChange(e,2)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            </TableCell>                       
+                                            <TableCell>YES<Checkbox checked={this.state.NStateyes[0]} onChange={(e) => this.handlenstateyescheckChange(e)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            NO<Checkbox checked={this.state.NStateno[0]} onChange={(e) => this.handlenstatenocheckChange(e)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            </TableCell>                      
                                         </TableRow>
                                         <TableRow>
                                             <TableCell><b>Relevance: </b>Is the image Relevant to the caption?</TableCell>
-                                            <TableCell>YES<Checkbox checked={this.state.RStateyes[0]} onChange={(e,val) => this.handlerstateyescheckChange(e,0)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            NO<Checkbox checked={this.state.RStateno[0]} onChange={(e,val) => this.handlerstatenocheckChange(e,0)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            </TableCell>
-                                            <TableCell>YES<Checkbox checked={this.state.RStateyes[1]} onChange={(e,val) => this.handlerstateyescheckChange(e,1)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            NO<Checkbox checked={this.state.RStateno[1]} onChange={(e,val) => this.handlerstatenocheckChange(e,1)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            </TableCell>
-                                            <TableCell>YES<Checkbox checked={this.state.RStateyes[2]} onChange={(e,val) => this.handlerstateyescheckChange(e,2)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            NO<Checkbox checked={this.state.RStateno[2]} onChange={(e,val) => this.handlerstatenocheckChange(e,2)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            </TableCell>                   
+                                            <TableCell>YES<Checkbox checked={this.state.RStateyes[0]} onChange={(e) => this.handlerstateyescheckChange(e)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            NO<Checkbox checked={this.state.RStateno[0]} onChange={(e) => this.handlerstatenocheckChange(e)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            </TableCell>                 
                                         </TableRow>  
                                         <TableRow>
                                             <TableCell><b>Correctness: </b>Is the image Correct?</TableCell>
-                                            <TableCell>YES<Checkbox checked={this.state.CStateyes[0]} onChange={(e,val) => this.handlecstateyescheckChange(e,0)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            NO<Checkbox checked={this.state.CStateno[0]} onChange={(e,val) => this.handlecstatenocheckChange(e,0)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            </TableCell>
-                                            <TableCell>YES<Checkbox checked={this.state.CStateyes[1]} onChange={(e,val) => this.handlecstateyescheckChange(e,1)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            NO<Checkbox checked={this.state.CStateno[1]} onChange={(e,val) => this.handlecstatenocheckChange(e,1)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            </TableCell>
-                                            <TableCell>YES<Checkbox checked={this.state.CStateyes[2]} onChange={(e,val) => this.handlecstateyescheckChange(e,2)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            NO<Checkbox checked={this.state.CStateno[2]} onChange={(e,val) => this.handlecstatenocheckChange(e,2)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
-                                            </TableCell>                      
+                                            <TableCell>YES<Checkbox checked={this.state.CStateyes[0]} onChange={(e) => this.handlecstateyescheckChange(e)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            NO<Checkbox checked={this.state.CStateno[0]} onChange={(e) => this.handlecstatenocheckChange(e)} inputProps={{ 'aria-label': 'uncontrolled-checkbox' }}></Checkbox>
+                                            </TableCell>                   
                                         </TableRow>  
                                     </TableBody>
                                 </Table>

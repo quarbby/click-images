@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, redirect, url_for
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import os
 import json
 from datetime import datetime
@@ -33,7 +33,7 @@ def create_app():
 
         c.execute(
             '''CREATE TABLE IF NOT EXISTS imglabels
-            (imgtype, imgname, naturalness, relevance, correctness, date)
+            (imgtype, imgname, naturalness, relevance, correctness, sum, date)
             '''
         )
 
@@ -62,22 +62,16 @@ def create_app():
         try:
             cursor = conn.cursor()
             sqlite_insert_query = """INSERT INTO imglabels
-                                    ('imgtype', 'imgname', 'naturalness', 'relevance', 'correctness', 'date')
-                                    VALUES (?,?,?,?,?,?);
+                                    ('imgtype', 'imgname', 'naturalness', 'relevance', 'correctness', 'sum', 'date')
+                                    VALUES (?,?,?,?,?,?,?);
                                     """
-            data_tuple_secondimg = ( 'img1', json_data['secondimg'], json_data['NState'][0], 
-                            json_data['RState'][0], json_data['CState'][0], date_string
-                        )
-            data_tuple_dfgan = ( 'dfgan', json_data['dfganimg'], json_data['NState'][1], 
-                            json_data['RState'][1], json_data['CState'][1], date_string
-                        )
-            data_tuple_dfganbaselineimg = ( 'dfganbaseline', json_data['dfganbaselineimg'], json_data['NState'][2], 
-                            json_data['RState'][2], json_data['CState'][2], date_string
+
+            sum = json_data['NState'] + json_data['RState'] + json_data['CState']
+            data_tuple_img = ( json_data['imgtype'], json_data['imgname'], json_data['NState'], 
+                            json_data['RState'], json_data['CState'], sum, date_string
                         )
 
-            records = [data_tuple_secondimg, data_tuple_dfgan, data_tuple_dfganbaselineimg]
-
-            cursor.executemany(sqlite_insert_query, records)
+            cursor.execute(sqlite_insert_query, data_tuple_img)
             print(cursor.rowcount, "Records inserted successfully into sqlite labels")
             conn.commit()
 
@@ -107,6 +101,7 @@ def create_app():
         return response
 
     @app.route('/send_data', methods=['POST'])
+    @cross_origin()
     def send_data():
         insert_into_db(conn, request.json)
         return {}
